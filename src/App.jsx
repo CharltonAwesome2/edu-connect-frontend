@@ -8,7 +8,7 @@ import Home from "@pages/Home";
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route element={<RedirectIfAuthed />}>
             <Route path="/login" element={<Login />} />

@@ -3,10 +3,8 @@ import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig({
+  base: "/edu-connect-frontend/",
   plugins: [react()],
-
-  base: "/",
-
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
