@@ -497,5 +497,3 @@ td a, td button { display: inline-flex; align-items: center; gap: 4px; color: va
   display: flex;
   align-items: center;
 }
-
-.selected-slot:has(+ *) 
