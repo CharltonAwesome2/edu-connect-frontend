@@ -9,6 +9,7 @@ import Tutors from "@pages/Tutors";
 import StudentDashboard from "@pages/StudentDashboard";
 import TutorDashboard from "@pages/TutorDashboard";
 import NotFound from "@pages/NotFound";
+import Notifications from "@pages/Notifications";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
           {/* Authenticated pages now share a sidebar with logout */}
           <Route element={<RequireAuth />}>
             <Route element={<AppShell />}>
+              <Route path="/notifications" element={<Notifications />} />
               <Route path="/student" element={<StudentDashboard />} />
               <Route path="/tutor" element={<TutorDashboard />} />
               <Route path="/tutors" element={<Tutors />} />

@@ -4,10 +4,10 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Brand } from "@components/Brand";
-import { useAuth } from "@context/AuthContext";
+import { dashboardPath, useAuth } from "@context/AuthContext";
 
 export default function Landing() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
 
   return (
     <div className="marketing-page">
@@ -20,7 +20,7 @@ export default function Landing() {
         </nav>
         <div className="nav-actions">
           {isLoggedIn ? (
-            <Link className="button button-primary" to="/">Open dashboard</Link>
+            <Link className="button button-primary" to={dashboardPath(user)}>Open dashboard</Link>
           ) : (
             <>
               <Link className="button button-ghost" to="/login">Log in</Link>

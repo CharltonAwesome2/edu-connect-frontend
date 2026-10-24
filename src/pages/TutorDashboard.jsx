@@ -1,12 +1,25 @@
-import { CalendarClock, Check, Save, Star, UserRoundCheck, X } from "lucide-react";
+import { CalendarClock, Check, Plus, Save, Star, UserRoundCheck, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Card, EmptyState, Field, Loading, Modal, Notice, PageHeader, StatCard, StatusBadge, formatDate,
+  Card,
+  EmptyState,
+  Field,
+  Loading,
+  Modal,
+  Notice,
+  PageHeader,
+  StatCard,
+  StatusBadge,
+  formatDate,
 } from "@components/ui";
 import { useAuth } from "@context/AuthContext";
 import {
-  subjects as subjectApi, tutorProfiles, tutorSubjects, availability as availabilityApi,
-  tutoringSessions, bookingRequests, tutorReviews,
+  subjects as subjectApi,
+  tutorProfiles,
+  tutorSubjects,
+  availability as availabilityApi,
+  tutoringSessions,
+  bookingRequests,
 } from "@api";
 
 export default function TutorDashboard() {
@@ -18,19 +31,22 @@ export default function TutorDashboard() {
   const [bookings, setBookings] = useState([]);
   const [profileForm, setProfileForm] = useState({ bio: "", yearsExperience: 0, hourlyRate: 0 });
   const [subjectId, setSubjectId] = useState("");
+  const [newSubject, setNewSubject] = useState({ subjectName: "", subjectCode: "", department: "" });
   const [availability, setAvailability] = useState({
-    dayOfWeek: "MONDAY", startTime: "09:00", endTime: "12:00", isRecurring: true,
+    dayOfWeek: "MONDAY",
+    startTime: "09:00",
+    endTime: "12:00",
+    isRecurring: true,
   });
   const [selectedSession, setSelectedSession] = useState(null);
-  const [reviewSession, setReviewSession] = useState(null);
-  const [review, setReview] = useState({
-    rating: 5, comment: "", strengths: "", improvements: "", isPublic: false,
-  });
+
   const [delivery, setDelivery] = useState({
-    status: "SCHEDULED", sessionNotes: "",
+    status: "SCHEDULED",
+    sessionNotes: "",
   });
   const [showProfile, setShowProfile] = useState(false);
   const [showAvailability, setShowAvailability] = useState(false);
+  const [showSubject, setShowSubject] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
@@ -40,7 +56,8 @@ export default function TutorDashboard() {
     try {
       const [subs, profiles] = await Promise.all([subjectApi.all(), tutorProfiles.byUserId(user.userId)]);
       const own = profiles[0] ?? null;
-      setSubjects(subs); setProfile(own);
+      setSubjects(subs);
+      setProfile(own);
 
       if (own) {
         setProfileForm({
@@ -52,12 +69,17 @@ export default function TutorDashboard() {
           tutorSubjects.byTutorProfileId(own.tutorProfileId),
           tutoringSessions.byTutorProfileId(own.tutorProfileId),
         ]);
-        setTutorSubjectLinks(links); setSessions(sess);
+        setTutorSubjectLinks(links);
+        setSessions(sess);
       }
 
       let reqs = [];
-      try { reqs = await bookingRequests.all(); } catch { /* optional */ }
-      setBookings(reqs.filter((r) => (r.tutorProfile?.tutorProfileId) === own?.tutorProfileId));
+      try {
+        reqs = await bookingRequests.all();
+      } catch {
+        /* optional */
+      }
+      setBookings(reqs.filter((r) => r.tutorProfile?.tutorProfileId === own?.tutorProfileId));
     } catch (cause) {
       setNotice({ kind: "error", text: cause.message });
     } finally {
@@ -65,17 +87,41 @@ export default function TutorDashboard() {
     }
   };
 
-  useEffect(() => { void load(); /* eslint-disable-next-line */ }, []);
+  useEffect(() => {
+    void load(); /* eslint-disable-next-line */
+  }, []);
 
   const assignedSubjects = useMemo(
     () => subjects.filter((s) => tutorSubjectLinks.some((l) => l.subject?.subjectId === s.subjectId)),
-    [subjects, tutorSubjectLinks]
+    [subjects, tutorSubjectLinks],
   );
   const subjectName = (id) => subjects.find((s) => s.subjectId === id)?.subjectName ?? `Subject ${id}`;
 
+  const createSubject = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setNotice(null);
+    try {
+      await subjectApi.create({
+        subjectName: newSubject.subjectName,
+        subjectCode: newSubject.subjectCode.toUpperCase(),
+        department: newSubject.department,
+      });
+      setShowSubject(false);
+      setNewSubject({ subjectName: "", subjectCode: "", department: "" });
+      setNotice({ kind: "success", text: "Subject created." });
+      await load();
+    } catch (cause) {
+      setNotice({ kind: "error", text: cause.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const saveProfile = async (e) => {
     e.preventDefault();
-    setBusy(true); setNotice(null);
+    setBusy(true);
+    setNotice(null);
     try {
       const payload = {
         ...(profile ? { tutorProfileId: profile.tutorProfileId } : {}),
@@ -122,7 +168,6 @@ export default function TutorDashboard() {
     if (!profile) return;
     setBusy(true);
     try {
-      // Availability.startTime/endTime are LocalDateTime — combine today's date with the time.
       const today = new Date().toISOString().slice(0, 10);
       await availabilityApi.create({
         tutorProfile: { tutorProfileId: profile.tutorProfileId },
@@ -143,7 +188,8 @@ export default function TutorDashboard() {
   const respond = async (id, status) => {
     try {
       const req = bookings.find((b) => b.bookingRequestId === id);
-      await bookingRequests.update({ ...req, status });
+      const backendStatus = status === "ACCEPTED" || status === "APPROVED" ? "APPROVED" : "DECLINED";
+      await bookingRequests.update({ ...req, status: backendStatus });
       setNotice({ kind: "success", text: `Booking ${status.toLowerCase()}.` });
       await load();
     } catch (cause) {
@@ -177,32 +223,6 @@ export default function TutorDashboard() {
     }
   };
 
-  const submitReview = async (e) => {
-    e.preventDefault();
-    if (!reviewSession) return;
-    setBusy(true);
-    try {
-      await tutorReviews.create({
-        session: { tutoringSessionId: reviewSession.tutoringSessionId },
-        student: reviewSession.student,
-        tutorProfile: reviewSession.tutorProfile,
-        rating: review.rating,
-        comment: review.comment,
-        strengths: review.strengths,
-        improvements: review.improvements,
-        isPublic: review.isPublic,
-        reviewedAt: new Date().toISOString(),
-      });
-      setReviewSession(null);
-      setReview({ rating: 5, comment: "", strengths: "", improvements: "", isPublic: false });
-      setNotice({ kind: "success", text: "Review saved." });
-    } catch (cause) {
-      setNotice({ kind: "error", text: cause.message });
-    } finally {
-      setBusy(false);
-    }
-  };
-
   if (loading) return <Loading label="Preparing your tutor workspace" />;
 
   return (
@@ -213,6 +233,9 @@ export default function TutorDashboard() {
         description="Manage requests, teaching, and your operational record."
         action={
           <div className="button-row">
+            <button className="button button-secondary" onClick={() => setShowSubject(true)}>
+              <Plus size={18} /> New subject
+            </button>
             <button className="button button-secondary" onClick={() => setShowAvailability(true)} disabled={!profile}>
               <CalendarClock size={18} /> Add availability
             </button>
@@ -223,112 +246,225 @@ export default function TutorDashboard() {
         }
       />
 
-      {notice && <Notice kind={notice.kind} onClose={() => setNotice(null)}>{notice.text}</Notice>}
+      {notice && (
+        <Notice kind={notice.kind} onClose={() => setNotice(null)}>
+          {notice.text}
+        </Notice>
+      )}
       {!profile && <Notice kind="info">Create your tutor profile before adding subjects or availability.</Notice>}
 
       <div className="stats-grid">
-        <StatCard icon={<CalendarClock />} label="Pending requests" value={bookings.filter((b) => b.status === "PENDING").length} tone="amber" />
-        <StatCard icon={<CalendarClock />} label="Scheduled sessions" value={sessions.filter((s) => s.status === "SCHEDULED").length} />
+        <StatCard
+          icon={<CalendarClock />}
+          label="Pending requests"
+          value={bookings.filter((b) => b.status === "PENDING").length}
+          tone="amber"
+        />
+        <StatCard
+          icon={<CalendarClock />}
+          label="Scheduled sessions"
+          value={sessions.filter((s) => s.status === "SCHEDULED").length}
+        />
         <StatCard icon={<UserRoundCheck />} label="Subjects taught" value={assignedSubjects.length} tone="violet" />
-        <StatCard icon={<Star />} label="Completed sessions" value={sessions.filter((s) => s.status === "COMPLETED").length} tone="green" />
+        <StatCard
+          icon={<Star />}
+          label="Completed sessions"
+          value={sessions.filter((s) => s.status === "COMPLETED").length}
+          tone="green"
+        />
       </div>
 
       <div className="dashboard-grid">
         <Card className="span-two">
           <div className="card-heading">
-            <div><span className="eyebrow">Action needed</span><h2>Booking requests</h2></div>
+            <div>
+              <span className="eyebrow">Action needed</span>
+              <h2>Booking requests</h2>
+            </div>
           </div>
-          {bookings.filter((b) => b.status === "PENDING").length === 0
-            ? <EmptyState title="No pending requests" text="New student requests will appear here." />
-            : <div className="request-list">
-                {bookings.filter((b) => b.status === "PENDING").map((b) => (
+          {bookings.filter((b) => b.status === "PENDING").length === 0 ? (
+            <EmptyState title="No pending requests" text="New student requests will appear here." />
+          ) : (
+            <div className="request-list">
+              {bookings
+                .filter((b) => b.status === "PENDING")
+                .map((b) => (
                   <article key={b.bookingRequestId}>
-                    <div className="request-icon"><CalendarClock /></div>
+                    <div className="request-icon">
+                      <CalendarClock />
+                    </div>
                     <div>
                       <h3>{subjectName(b.subject?.subjectId)}</h3>
-                      <p>{formatDate(b.requestedStartTime)} · {b.durationMinutes} min</p>
+                      <p>
+                        {formatDate(b.requestedStartTime)} · {b.durationMinutes} min
+                      </p>
                       <small>{b.studentNotes || "No notes from the student."}</small>
                     </div>
                     <div className="request-actions">
-                      <button className="button button-success" onClick={() => void respond(b.bookingRequestId, "ACCEPTED")}>
+                      <button
+                        className="button button-success"
+                        onClick={() => void respond(b.bookingRequestId, "APPROVED")}
+                      >
                         <Check size={17} /> Accept
                       </button>
-                      <button className="button button-danger" onClick={() => void respond(b.bookingRequestId, "DECLINED")}>
+                      <button
+                        className="button button-danger"
+                        onClick={() => void respond(b.bookingRequestId, "DECLINED")}
+                      >
                         <X size={17} /> Decline
                       </button>
                     </div>
                   </article>
                 ))}
-              </div>
-          }
+            </div>
+          )}
         </Card>
 
         <Card>
           <div className="card-heading">
-            <div><span className="eyebrow">Teaching profile</span><h2>Your subjects</h2></div>
+            <div>
+              <span className="eyebrow">Teaching profile</span>
+              <h2>Your subjects</h2>
+            </div>
           </div>
           <div className="tag-row large">
-            {assignedSubjects.map((s) => <span key={s.subjectId}>{s.subjectCode}</span>)}
+            {assignedSubjects.map((s) => (
+              <span key={s.subjectId}>{s.subjectCode}</span>
+            ))}
           </div>
           {assignedSubjects.length === 0 && <p className="muted">No subjects assigned yet.</p>}
           <form className="inline-form vertical-mobile" onSubmit={addSubject}>
             <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} required disabled={!profile}>
               <option value="">Select a subject…</option>
-              {subjects.filter((s) => !assignedSubjects.some((a) => a.subjectId === s.subjectId))
-                .map((s) => <option key={s.subjectId} value={s.subjectId}>{s.subjectCode} — {s.subjectName}</option>)}
+              {subjects
+                .filter((s) => !assignedSubjects.some((a) => a.subjectId === s.subjectId))
+                .map((s) => (
+                  <option key={s.subjectId} value={s.subjectId}>
+                    {s.subjectCode} — {s.subjectName}
+                  </option>
+                ))}
             </select>
-            <button className="button button-secondary" disabled={!profile || busy}>Add</button>
+            <button className="button button-secondary" disabled={!profile || busy}>
+              Add
+            </button>
           </form>
         </Card>
       </div>
 
       <Card>
         <div className="card-heading">
-          <div><span className="eyebrow">Lesson delivery</span><h2>Sessions</h2></div>
+          <div>
+            <span className="eyebrow">Lesson delivery</span>
+            <h2>Sessions</h2>
+          </div>
         </div>
         <div className="table-wrap">
           <table>
             <thead>
-              <tr><th>Subject</th><th>Student</th><th>Date</th><th>Status</th><th /></tr>
+              <tr>
+                <th>Subject</th>
+                <th>Student</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th />
+              </tr>
             </thead>
             <tbody>
               {sessions.map((s) => (
                 <tr key={s.tutoringSessionId}>
-                  <td><b>{subjectName(s.subject?.subjectId)}</b></td>
+                  <td>
+                    <b>{subjectName(s.subject?.subjectId)}</b>
+                  </td>
                   <td>Student #{s.student?.userId}</td>
                   <td>{formatDate(s.startTime)}</td>
-                  <td><StatusBadge status={s.status} /></td>
                   <td>
-                    {s.status === "COMPLETED"
-                      ? <button onClick={() => setReviewSession(s)}><Star size={15} /> Review</button>
-                      : <button onClick={() => openDelivery(s)} disabled={s.status === "CANCELLED"}>Manage</button>}
+                    <StatusBadge status={s.status} />
+                  </td>
+                  <td>
+                    {s.status !== "COMPLETED" && s.status !== "CANCELLED" ? (
+                      <button onClick={() => openDelivery(s)}>Manage</button>
+                    ) : null}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {sessions.length === 0 && <EmptyState title="No tutoring sessions" text="Accepted bookings become scheduled sessions." />}
+          {sessions.length === 0 && (
+            <EmptyState title="No tutoring sessions" text="Accepted bookings become scheduled sessions." />
+          )}
         </div>
       </Card>
+
+      {showSubject && (
+        <Modal title="Create a subject" onClose={() => setShowSubject(false)}>
+          <form className="stack-form" onSubmit={createSubject}>
+            <Field label="Subject name">
+              <input
+                value={newSubject.subjectName}
+                onChange={(e) => setNewSubject((c) => ({ ...c, subjectName: e.target.value }))}
+                placeholder="Mathematics"
+                required
+              />
+            </Field>
+            <div className="form-grid two">
+              <Field label="Subject code">
+                <input
+                  value={newSubject.subjectCode}
+                  onChange={(e) => setNewSubject((c) => ({ ...c, subjectCode: e.target.value.toUpperCase() }))}
+                  placeholder="MAT101"
+                  required
+                />
+              </Field>
+              <Field label="Department">
+                <input
+                  value={newSubject.department}
+                  onChange={(e) => setNewSubject((c) => ({ ...c, department: e.target.value }))}
+                  placeholder="Science"
+                />
+              </Field>
+            </div>
+            <button className="button button-primary" disabled={busy}>
+              <Plus size={18} /> {busy ? "Creating…" : "Create subject"}
+            </button>
+          </form>
+        </Modal>
+      )}
 
       {showProfile && (
         <Modal title={profile ? "Edit tutor profile" : "Create tutor profile"} onClose={() => setShowProfile(false)}>
           <form className="stack-form" onSubmit={saveProfile}>
             <Field label="Tutor bio">
-              <textarea rows={5} value={profileForm.bio}
-                onChange={(e) => setProfileForm((c) => ({ ...c, bio: e.target.value }))} required />
+              <textarea
+                rows={5}
+                value={profileForm.bio}
+                onChange={(e) => setProfileForm((c) => ({ ...c, bio: e.target.value }))}
+                required
+              />
             </Field>
             <div className="form-grid two">
               <Field label="Years of experience">
-                <input type="number" min="0" value={profileForm.yearsExperience}
-                  onChange={(e) => setProfileForm((c) => ({ ...c, yearsExperience: Number(e.target.value) }))} required />
+                <input
+                  type="number"
+                  min="0"
+                  value={profileForm.yearsExperience}
+                  onChange={(e) => setProfileForm((c) => ({ ...c, yearsExperience: Number(e.target.value) }))}
+                  required
+                />
               </Field>
               <Field label="Hourly rate (R)" hint="Enter 0 for free tutoring">
-                <input type="number" min="0" step="0.01" value={profileForm.hourlyRate}
-                  onChange={(e) => setProfileForm((c) => ({ ...c, hourlyRate: Number(e.target.value) }))} required />
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={profileForm.hourlyRate}
+                  onChange={(e) => setProfileForm((c) => ({ ...c, hourlyRate: Number(e.target.value) }))}
+                  required
+                />
               </Field>
             </div>
-            <button className="button button-primary" disabled={busy}><Save size={18} /> Save profile</button>
+            <button className="button button-primary" disabled={busy}>
+              <Save size={18} /> Save profile
+            </button>
           </form>
         </Modal>
       )}
@@ -337,27 +473,44 @@ export default function TutorDashboard() {
         <Modal title="Add recurring availability" onClose={() => setShowAvailability(false)}>
           <form className="stack-form" onSubmit={addAvailability}>
             <Field label="Day">
-              <select value={availability.dayOfWeek}
-                onChange={(e) => setAvailability((c) => ({ ...c, dayOfWeek: e.target.value }))}>
-                {["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"].map((d) => <option key={d}>{d}</option>)}
+              <select
+                value={availability.dayOfWeek}
+                onChange={(e) => setAvailability((c) => ({ ...c, dayOfWeek: e.target.value }))}
+              >
+                {["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].map((d) => (
+                  <option key={d}>{d}</option>
+                ))}
               </select>
             </Field>
             <div className="form-grid two">
               <Field label="Starts">
-                <input type="time" value={availability.startTime}
-                  onChange={(e) => setAvailability((c) => ({ ...c, startTime: e.target.value }))} required />
+                <input
+                  type="time"
+                  value={availability.startTime}
+                  onChange={(e) => setAvailability((c) => ({ ...c, startTime: e.target.value }))}
+                  required
+                />
               </Field>
               <Field label="Ends">
-                <input type="time" value={availability.endTime}
-                  onChange={(e) => setAvailability((c) => ({ ...c, endTime: e.target.value }))} required />
+                <input
+                  type="time"
+                  value={availability.endTime}
+                  onChange={(e) => setAvailability((c) => ({ ...c, endTime: e.target.value }))}
+                  required
+                />
               </Field>
             </div>
             <label className="check-row">
-              <input type="checkbox" checked={availability.isRecurring}
-                onChange={(e) => setAvailability((c) => ({ ...c, isRecurring: e.target.checked }))} />
+              <input
+                type="checkbox"
+                checked={availability.isRecurring}
+                onChange={(e) => setAvailability((c) => ({ ...c, isRecurring: e.target.checked }))}
+              />
               <span>Repeat every week</span>
             </label>
-            <button className="button button-primary" disabled={busy}>Publish availability</button>
+            <button className="button button-primary" disabled={busy}>
+              Publish availability
+            </button>
           </form>
         </Modal>
       )}
@@ -374,43 +527,15 @@ export default function TutorDashboard() {
               </select>
             </Field>
             <Field label="Session notes">
-              <textarea rows={3} value={delivery.sessionNotes}
-                onChange={(e) => setDelivery((c) => ({ ...c, sessionNotes: e.target.value }))} />
+              <textarea
+                rows={3}
+                value={delivery.sessionNotes}
+                onChange={(e) => setDelivery((c) => ({ ...c, sessionNotes: e.target.value }))}
+              />
             </Field>
-            <button className="button button-primary" disabled={busy}><Save size={18} /> {busy ? "Saving…" : "Save session"}</button>
-          </form>
-        </Modal>
-      )}
-
-      {reviewSession && (
-        <Modal title="Review the student" onClose={() => setReviewSession(null)}>
-          <form className="stack-form" onSubmit={submitReview}>
-            <Field label="Rating">
-              <div className="rating-picker">
-                {[1,2,3,4,5].map((v) => (
-                  <button type="button" key={v} className={v <= review.rating ? "active" : ""}
-                    onClick={() => setReview((c) => ({ ...c, rating: v }))}><Star /></button>
-                ))}
-              </div>
-            </Field>
-            <Field label="Review">
-              <textarea rows={3} required value={review.comment}
-                onChange={(e) => setReview((c) => ({ ...c, comment: e.target.value }))} />
-            </Field>
-            <Field label="Strengths">
-              <input value={review.strengths}
-                onChange={(e) => setReview((c) => ({ ...c, strengths: e.target.value }))} />
-            </Field>
-            <Field label="Areas to improve">
-              <input value={review.improvements}
-                onChange={(e) => setReview((c) => ({ ...c, improvements: e.target.value }))} />
-            </Field>
-            <label className="check-row">
-              <input type="checkbox" checked={review.isPublic}
-                onChange={(e) => setReview((c) => ({ ...c, isPublic: e.target.checked }))} />
-              <span>Make this feedback public</span>
-            </label>
-            <button className="button button-primary" disabled={busy}>Submit review</button>
+            <button className="button button-primary" disabled={busy}>
+              <Save size={18} /> {busy ? "Saving…" : "Save session"}
+            </button>
           </form>
         </Modal>
       )}

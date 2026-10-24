@@ -1,18 +1,33 @@
-import { BookOpen, CalendarCheck2, CheckCircle2, Clock3, Search, UsersRound } from "lucide-react";
+import { BookOpen, CalendarCheck2, CheckCircle2, Clock3, Search, Star, UsersRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Card, EmptyState, Loading, Notice, PageHeader, StatCard, StatusBadge, formatDate,
+  Card, EmptyState, Field, Loading, Modal, Notice, PageHeader, StatCard, StatusBadge, formatDate,
 } from "@components/ui";
 import { useAuth } from "@context/AuthContext";
-import { subjects as subjectApi, tutoringSessions, bookingRequests } from "@api";
+import {
+  subjects as subjectApi,
+  tutoringSessions,
+  bookingRequests,
+  tutorReviews,
+} from "@api";
 
 export default function StudentDashboard() {
   const { user } = useAuth();
   const [subjects, setSubjects] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [myReviews, setMyReviews] = useState([]);
+  const [reviewSession, setReviewSession] = useState(null);
+  const [review, setReview] = useState({
+    rating: 5,
+    comment: "",
+    strengths: "",
+    improvements: "",
+    isPublic: true,
+  });
   const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
 
   const load = async () => {
@@ -24,8 +39,15 @@ export default function StudentDashboard() {
       ]);
       let reqs = [];
       try { reqs = await bookingRequests.all(); } catch { /* optional */ }
-      setSubjects(subs); setSessions(sess);
+      let revs = [];
+      try {
+        const allRevs = await tutorReviews.all();
+        revs = allRevs.filter((r) => r.student?.userId === user.userId);
+      } catch { /* optional */ }
+      setSubjects(subs);
+      setSessions(sess);
       setBookings(reqs.filter((r) => r.student?.userId === user.userId));
+      setMyReviews(revs);
     } catch (cause) {
       setNotice({ kind: "error", text: cause.message });
     } finally {
@@ -42,6 +64,38 @@ export default function StudentDashboard() {
     () => [...upcoming].sort((a, b) => String(a.startTime).localeCompare(String(b.startTime)))[0],
     [upcoming]
   );
+  const hasReviewed = (sessionId) =>
+    myReviews.some((r) => r.session?.tutoringSessionId === sessionId);
+
+  const submitReview = async (e) => {
+    e.preventDefault();
+    if (!reviewSession) return;
+    setBusy(true);
+    try {
+      await tutorReviews.create({
+        session: { tutoringSessionId: reviewSession.tutoringSessionId },
+        student: { userId: user.userId },
+        tutorProfile: reviewSession.tutorProfile,
+        rating: review.rating,
+        comment: review.comment,
+        strengths: review.strengths,
+        improvements: review.improvements,
+        isPublic: review.isPublic,
+        reviewedAt: new Date().toISOString(),
+      });
+      setReviewSession(null);
+      setReview({ rating: 5, comment: "", strengths: "", improvements: "", isPublic: true });
+      setNotice({ kind: "success", text: "Review saved." });
+      await load();
+    } catch (cause) {
+      const msg = /uq_rev_session|Duplicate entry/.test(cause.message)
+        ? "You've already reviewed this session."
+        : cause.message;
+      setNotice({ kind: "error", text: msg });
+    } finally {
+      setBusy(false);
+    }
+  };
 
   if (loading) return <Loading label="Preparing your learning dashboard" />;
 
@@ -130,6 +184,104 @@ export default function StudentDashboard() {
             ))}</div>
         }
       </Card>
+
+      <Card>
+        <div className="card-heading">
+          <div><span className="eyebrow">Progress record</span><h2>Completed sessions</h2></div>
+        </div>
+        {completed.length === 0
+          ? <EmptyState
+              title="No completed sessions yet"
+              text="Once a session finishes, you'll be able to review your tutor here."
+            />
+          : <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Tutor</th>
+                    <th>Status</th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {completed.map((s) => (
+                    <tr key={s.tutoringSessionId}>
+                      <td><b>{subjectName(s.subject?.subjectId)}</b></td>
+                      <td>{formatDate(s.startTime)}</td>
+                      <td>
+                        {s.tutorProfile?.user?.name
+                          ? `${s.tutorProfile.user.name} ${s.tutorProfile.user.surname ?? ""}`.trim()
+                          : `Tutor #${s.tutorProfile?.tutorProfileId ?? "?"}`}
+                      </td>
+                      <td><StatusBadge status={s.status} /></td>
+                      <td>
+                        {hasReviewed(s.tutoringSessionId)
+                          ? <span className="muted">Reviewed</span>
+                          : <button onClick={() => setReviewSession(s)}>
+                              <Star size={15} /> Review
+                            </button>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+        }
+      </Card>
+
+      {reviewSession && (
+        <Modal title="Review your tutor" onClose={() => setReviewSession(null)}>
+          <form className="stack-form" onSubmit={submitReview}>
+            <Field label="Rating">
+              <div className="rating-picker">
+                {[1, 2, 3, 4, 5].map((v) => (
+                  <button
+                    type="button"
+                    key={v}
+                    className={v <= review.rating ? "active" : ""}
+                    onClick={() => setReview((c) => ({ ...c, rating: v }))}
+                  >
+                    <Star />
+                  </button>
+                ))}
+              </div>
+            </Field>
+            <Field label="Your review">
+              <textarea
+                rows={3}
+                required
+                value={review.comment}
+                onChange={(e) => setReview((c) => ({ ...c, comment: e.target.value }))}
+              />
+            </Field>
+            <Field label="Strengths">
+              <input
+                value={review.strengths}
+                onChange={(e) => setReview((c) => ({ ...c, strengths: e.target.value }))}
+              />
+            </Field>
+            <Field label="Could improve">
+              <input
+                value={review.improvements}
+                onChange={(e) => setReview((c) => ({ ...c, improvements: e.target.value }))}
+              />
+            </Field>
+            <label className="check-row">
+              <input
+                type="checkbox"
+                checked={review.isPublic}
+                onChange={(e) => setReview((c) => ({ ...c, isPublic: e.target.checked }))}
+              />
+              <span>Share this review publicly</span>
+            </label>
+            <button className="button button-primary" disabled={busy}>
+              {busy ? "Submitting…" : "Submit review"}
+            </button>
+          </form>
+        </Modal>
+      )}
     </>
   );
 }

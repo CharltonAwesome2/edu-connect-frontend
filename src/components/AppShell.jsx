@@ -1,13 +1,37 @@
-import { LogOut, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Bell, LogOut, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Brand } from "@components/Brand";
 import { useAuth } from "@context/AuthContext";
+import { notifications as notificationApi } from "@api";
 
 export default function AppShell() {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+
+  const refreshUnread = async () => {
+    if (!user?.userId) return;
+    try {
+      const list = await notificationApi.byUserId(user.userId);
+      setUnread(list.filter((n) => !n.isRead).length);
+    } catch {
+      setUnread(0);
+    }
+  };
+
+  useEffect(() => {
+    void refreshUnread();
+    const t = setInterval(refreshUnread, 30000);
+    const handler = () => refreshUnread();
+    window.addEventListener("notifications:refresh", handler);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener("notifications:refresh", handler);
+    };
+    /* eslint-disable-next-line */
+  }, [user?.userId]);
 
   const handleLogout = async () => {
     await logout();
@@ -34,20 +58,28 @@ export default function AppShell() {
               Student dashboard
             </NavLink>
           ) : null}
+
           {role === "tutor" || role === "both" ? (
             <NavLink to="/tutor" onClick={() => setOpen(false)}>
               Tutor dashboard
             </NavLink>
           ) : null}
+
           <NavLink to="/tutors" onClick={() => setOpen(false)}>
             Find tutors
+          </NavLink>
+
+          <NavLink to="/notifications" onClick={() => setOpen(false)}>
+            Notifications
           </NavLink>
         </nav>
 
         <div className="sidebar-foot">
           <span className="user-avatar">{initials}</span>
           <div className="user-meta">
-            <strong>{user?.name} {user?.surname}</strong>
+            <strong>
+              {user?.name} {user?.surname}
+            </strong>
             <span>{role}</span>
           </div>
           <button className="icon-button" onClick={handleLogout} title="Log out" aria-label="Log out">
@@ -64,6 +96,10 @@ export default function AppShell() {
           <span className="topbar-message">
             <span className="live-dot" /> EduConnect
           </span>
+          <NavLink to="/notifications" className="notification-button" aria-label="Notifications">
+            <Bell size={18} />
+            {unread > 0 && <span>{unread > 9 ? "9+" : unread}</span>}
+          </NavLink>
         </header>
         <div className="page">
           <Outlet />

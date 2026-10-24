@@ -444,3 +444,58 @@ td a, td button { display: inline-flex; align-items: center; gap: 4px; color: va
   .message-composer .button span { display: none; }
   .message-composer .button { width: 45px; padding: 0; }
 }
+
+.availability-slot {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  background: rgba(255, 255, 255, .02);
+  border: 1px solid rgba(147, 177, 208, .08);
+  border-radius: 9px;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+
+.availability-slot:hover:not(:disabled) {
+  border-color: rgba(52, 215, 230, .35);
+  background: rgba(52, 215, 230, .05);
+}
+
+.availability-slot.selected {
+  border-color: var(--cyan);
+  background: rgba(52, 215, 230, .1);
+  box-shadow: 0 0 0 2px rgba(52, 215, 230, .15);
+}
+
+.availability-slot:disabled {
+  cursor: not-allowed;
+  opacity: .7;
+}
+
+.availability-slot b {
+  flex: 1;
+  font-size: 11px;
+}
+
+.availability-slot span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.selected-slot {
+  padding: 11px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 12px;
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+}
+
+.selected-slot:has(+ *) 
