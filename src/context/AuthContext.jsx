@@ -1,13 +1,14 @@
 import { createContext, useContext, useState, useCallback } from "react";
-import { loginApi, signupApi } from "@api/auth";
+import { loginApi, signupApi, logoutApi } from "@api/auth";
 
 const USER_KEY = "educonnect.user";
+const REMEMBER_KEY = "educonnect.remember";
 
 const AuthContext = createContext(null);
 
-function readUser() {
+function readStoredUser() {
   try {
-    const raw = localStorage.getItem(USER_KEY);
+    const raw = localStorage.getItem(USER_KEY) || sessionStorage.getItem(USER_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -22,39 +23,70 @@ function deriveRole(user) {
   return "unknown";
 }
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(readUser);
+export function dashboardPath(user) {
+  const role = deriveRole(user);
+  if (role === "tutor") return "/tutor";
+  if (role === "student") return "/student";
+  return "/";
+}
 
-  const persist = useCallback((user) => {
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(readStoredUser);
+
+  const persist = useCallback((user, remember) => {
+    const target = remember ? localStorage : sessionStorage;
+    const other = remember ? sessionStorage : localStorage;
+    other.removeItem(USER_KEY);
+    target.setItem(USER_KEY, JSON.stringify(user));
+    localStorage.setItem(REMEMBER_KEY, remember ? "1" : "0");
     setUser(user);
   }, []);
 
+  const clear = useCallback(() => {
+    localStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem(USER_KEY);
+    localStorage.removeItem(REMEMBER_KEY);
+    setUser(null);
+  }, []);
+
   const login = useCallback(
-    async (email, password) => {
+    async (email, password, remember = true) => {
       const user = await loginApi(email, password);
-      persist(user);
+      persist(user, remember);
       return user;
     },
     [persist]
   );
 
   const signup = useCallback(
-    async (name, email, password) => {
-      const user = await signupApi(name, email, password);
-      persist(user);
+    async (payload, remember = true) => {
+      const user = await signupApi(payload);
+      persist(user, remember);
       return user;
     },
     [persist]
   );
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(USER_KEY);
-    setUser(null);
-  }, []);
+  const logout = useCallback(async () => {
+    try {
+      await logoutApi();
+    } catch {
+      // ignore — no server session
+    }
+    clear();
+  }, [clear]);
 
   const role = deriveRole(user);
-  const value = { user, role, isLoggedIn: !!user, login, signup, logout };
+  const value = {
+    user,
+    role,
+    isLoggedIn: !!user,
+    isStudent: !!user?.isStudent,
+    isTutor: !!user?.isTutor,
+    login,
+    signup,
+    logout,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

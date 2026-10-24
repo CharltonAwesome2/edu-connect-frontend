@@ -1,11 +1,13 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@context/AuthContext";
 
 export function RequireAuth() {
   const { isLoggedIn } = useAuth();
-  return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
+  const location = useLocation();
+  return isLoggedIn
+    ? <Outlet />
+    : <Navigate to="/login" replace state={{ from: location.pathname }} />;
 }
-
 export function RedirectIfAuthed() {
   const { isLoggedIn } = useAuth();
   return isLoggedIn ? <Navigate to="/" replace /> : <Outlet />;
