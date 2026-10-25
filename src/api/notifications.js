@@ -9,4 +9,8 @@ export const notifications = {
   byUserId: (userId) => api.get(`/notification/by-user-id/${userId}`).then((r) => r.data),
   markRead: (id) => api.patch(`/notification/${id}/read`).then((r) => r.data),
   markAllRead: (userId) => api.patch(`/notification/by-user-id/${userId}/read-all`).then((r) => r.data),
+  byUser: (user) => api.post("/notification/by-user", user).then((r) => r.data),
+  byType: (type) => api.get(`/notification/by-type/${type}`).then((r) => r.data),
+  unreadByUserId: (userId) => api.get(`/notification/unread/by-user-id/${userId}`).then((r) => r.data),
+  countUnreadByUserId: (userId) => api.get(`/notification/unread/count/by-user-id/${userId}`).then((r) => r.data),
 };
