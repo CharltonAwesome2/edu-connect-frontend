@@ -9,6 +9,7 @@ import {
   tutorProfiles,
   tutorSubjects,
   tutoringSessions,
+  payments as paymentApi,
 } from "@api";
 import { useNotice } from "@hooks/useNotice";
 import { useSubjectLookup } from "@hooks/useSubjectLookup";
@@ -21,6 +22,7 @@ import CreateSubjectModal from "./dashboard/tutor/CreateSubjectModal";
 import TutorProfileModal from "./dashboard/tutor/TutorProfileModal";
 import AvailabilityModal from "./dashboard/tutor/AvailabilityModal";
 import ManageSessionModal from "./dashboard/tutor/ManageSessionModal";
+import TutorEarningsCard from "./dashboard/tutor/TutorEarningsCard";
 
 export default function TutorDashboard() {
   const { user } = useAuth();
@@ -33,6 +35,7 @@ export default function TutorDashboard() {
   const [show, setShow] = useState({ profile: false, availability: false, subject: false });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [payments, setPayments] = useState([]);
   const { notice, setNotice, clear, showError, showSuccess } = useNotice();
   const { nameOf } = useSubjectLookup(subjects);
 
@@ -43,14 +46,18 @@ export default function TutorDashboard() {
       const own = profiles[0] ?? null;
       setSubjects(subs);
       setProfile(own);
+
       if (own) {
-        const [links, sess] = await Promise.all([
+        const [links, sess, pay] = await Promise.all([
           tutorSubjects.byTutorProfileId(own.tutorProfileId),
           tutoringSessions.byTutorProfileId(own.tutorProfileId),
+          paymentApi.byTutorProfileId(own.tutorProfileId), 
         ]);
         setTutorSubjectLinks(links);
         setSessions(sess);
+        setPayments(pay);
       }
+
       let reqs = [];
       try {
         reqs = await bookingRequests.all();
@@ -236,6 +243,8 @@ export default function TutorDashboard() {
       </div>
 
       <TutorSessionsCard sessions={sessions} subjectName={nameOf} onManage={setSelectedSession} />
+      
+      <TutorEarningsCard payments={payments} />
 
       {show.subject && (
         <CreateSubjectModal

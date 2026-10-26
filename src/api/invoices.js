@@ -14,4 +14,5 @@ export const invoices = {
   byIssuedDateBetween: (start, end) =>
     api.get("/invoice/by-issued-date-between", { params: { start, end } }).then((r) => r.data),
   dueBefore: (date) => api.get("/invoice/due-before", { params: { date } }).then((r) => r.data),
+  byStudentId: (userId) => api.get(`/invoice/by-student-id/${userId}`).then((r) => r.data),
 };
