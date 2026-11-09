@@ -3,9 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Brand } from "@components/Brand";
 import { Loading, Notice, formatDate, money } from "@components/ui";
-import {
-  availability as availabilityApi, tutorProfiles, tutorReviews, tutorSubjects,
-} from "@api";
+import { marketplace } from "@api";
 import { useNotice } from "@hooks/useNotice";
 
 export default function TutorPublicPage() {
@@ -21,16 +19,11 @@ export default function TutorPublicPage() {
     (async () => {
       setLoading(true);
       try {
-        const [t, subs, avail, revs] = await Promise.all([
-          tutorProfiles.byId(Number(id)),
-          tutorSubjects.byTutorProfileId(Number(id)),
-          availabilityApi.byTutorProfileId(Number(id)),
-          tutorReviews.byTutorId(Number(id)),
-        ]);
-        setTutor(t);
-        setSubjects(subs);
-        setSlots(avail);
-        setReviews(revs);
+        const details = await marketplace.tutorDetails(id);
+        setTutor(details.tutor);
+        setSubjects(details.subjects);
+        setSlots(details.availability);
+        setReviews(details.reviews);
       } catch (cause) { showError(cause.message); }
       finally { setLoading(false); }
     })();

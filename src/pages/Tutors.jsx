@@ -5,12 +5,7 @@ import { Brand } from "@components/Brand";
 import { Notice } from "@components/ui";
 import { useAuth } from "@context/AuthContext";
 import {
-  availability as availabilityApi,
-  bookingRequests,
-  subjects as subjectApi,
-  tutorProfiles,
-  tutorReviews,
-  tutorSubjects,
+  marketplace,
 } from "@api";
 import { useNotice } from "@hooks/useNotice";
 import TutorFilters from "./dashboard/tutors/TutorFilters";
@@ -45,16 +40,9 @@ export default function Tutors() {
   const load = async () => {
     setLoading(true);
     try {
-      const [subs, profiles] = await Promise.all([subjectApi.all(), tutorProfiles.all()]);
-      setSubjectList(subs);
-      let filtered = profiles;
-      if (subjectId) {
-        const links = await tutorSubjects.bySubjectId(Number(subjectId));
-        const ids = new Set(links.map((l) => l.tutorProfile?.tutorProfileId ?? l.tutorProfileId));
-        filtered = filtered.filter((p) => ids.has(p.tutorProfileId));
-      }
-      if (maxRate) filtered = filtered.filter((p) => Number(p.hourlyRate) <= Number(maxRate));
-      setTutors(filtered);
+      const data = await marketplace.directory({ subjectId, maxRate });
+      setSubjectList(data.subjects);
+      setTutors(data.tutors);
     } catch (cause) {
       showError(cause.message);
     } finally {
@@ -70,14 +58,10 @@ export default function Tutors() {
     setSelected(tutor);
     setBooking(emptyBooking(user, tutor));
     try {
-      const [subs, avail, revs] = await Promise.all([
-        tutorSubjects.byTutorProfileId(tutor.tutorProfileId),
-        availabilityApi.byTutorProfileId(tutor.tutorProfileId),
-        tutorReviews.byTutorId(tutor.tutorProfileId),
-      ]);
-      setSelectedSubjects(subs);
-      setAvailability(avail);
-      setReviews(revs);
+      const details = await marketplace.tutorDetails(tutor.tutorProfileId);
+      setSelectedSubjects(details.subjects);
+      setAvailability(details.availability);
+      setReviews(details.reviews);
     } catch (cause) {
       showError(cause.message);
     }
@@ -91,15 +75,7 @@ export default function Tutors() {
     if (!booking.requestedStartTime) return setNotice({ kind: "error", text: "Pick an availability slot." });
     setBusy(true);
     try {
-      await bookingRequests.create({
-        student: booking.student,
-        tutorProfile: booking.tutorProfile,
-        subject: booking.subject,
-        status: booking.status,
-        requestedStartTime: booking.requestedStartTime,
-        durationMinutes: booking.durationMinutes,
-        studentNotes: booking.studentNotes,
-      });
+      await marketplace.createBookingRequest(booking);
       showSuccess("Your request was sent.");
       setSelected(null);
     } catch (cause) {

@@ -8,6 +8,7 @@ export { availability } from "./availability";
 export { tutoringSessions } from "./tutoringSessions";
 export { bookingRequests } from "./bookingRequests";
 export { tutorReviews } from "./tutorReviews";
+export { marketplace } from "./marketplace";
 export { invoices } from "./invoices";
 export { payments } from "./payments";
 export { notifications } from "./notifications";
