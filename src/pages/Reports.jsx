@@ -61,6 +61,10 @@ export default function Reports() {
     }
   };
 
+  useEffect(() => {
+    void load();
+    /* eslint-disable-next-line */
+  }, []);
 
   const reportedSessionIds = useMemo(() => new Set(reports.map((r) => r.session?.tutoringSessionId)), [reports]);
 
