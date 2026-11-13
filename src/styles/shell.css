@@ -1,0 +1,224 @@
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 245px minmax(0, 1fr);
+}
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 245px;
+  display: flex;
+  flex-direction: column;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--line);
+  z-index: 30;
+}
+.sidebar-head {
+  height: 74px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+.side-nav {
+  padding: 22px 12px;
+  display: grid;
+  gap: 5px;
+}
+.side-nav a {
+  height: 44px;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 10px;
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 650;
+}
+.side-nav a:hover {
+  color: var(--text);
+  background: var(--tint-2);
+}
+.side-nav a.active {
+  color: var(--text);
+  background: linear-gradient(90deg, rgba(52, 215, 230, 0.12), rgba(52, 215, 230, 0.035));
+  box-shadow: inset 2px 0 var(--cyan);
+}
+.sidebar-foot {
+  margin-top: auto;
+  min-height: 76px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+}
+.user-avatar {
+  min-width: 37px;
+  height: 37px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: var(--tutor-avatar-fg);
+  background: var(--avatar-gradient);
+  font-weight: 900;
+  font-size: 12px;
+}
+.user-meta {
+  min-width: 0;
+  display: grid;
+  flex: 1;
+}
+.user-meta strong {
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.user-meta span {
+  color: var(--muted-soft);
+  font-size: 8px;
+  margin-top: 3px;
+}
+.app-main {
+  grid-column: 2;
+  min-width: 0;
+}
+.topbar {
+  height: 63px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 15px;
+  padding: 0 28px;
+  background: var(--topbar-bg);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--line);
+}
+.topbar-message {
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-strong);
+  font-size: 11px;
+}
+.live-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+  border-radius: 50%;
+}
+.notification-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  color: var(--muted);
+  background: var(--tint-2);
+}
+.notification-button > span {
+  position: absolute;
+  min-width: 17px;
+  height: 17px;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--notification-badge-border);
+  color: var(--notification-badge-fg);
+  background: var(--cyan);
+  border-radius: 10px;
+  font-size: 8px;
+  font-weight: 900;
+}
+.notification-panel {
+  position: absolute;
+  right: 25px;
+  top: 55px;
+  width: min(390px, calc(100vw - 30px));
+  max-height: 500px;
+  background: var(--notification-panel-bg);
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.notification-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.notification-panel h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.notification-panel header span {
+  color: var(--cyan);
+  font-size: 10px;
+}
+.notification-list {
+  max-height: 430px;
+  overflow-y: auto;
+}
+.notification-item {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+  padding: 14px 18px;
+}
+.notification-item.unread {
+  background: var(--cyan-tint-4);
+}
+.notification-item > span:last-child {
+  display: grid;
+  gap: 4px;
+}
+.notification-item strong {
+  color: var(--muted-strong);
+  font-size: 12px;
+}
+.notification-item small {
+  font-size: 11px;
+  line-height: 1.45;
+}
+.notification-item time {
+  color: var(--muted-soft);
+  font-size: 9px;
+}
+.notification-dot {
+  margin-top: 5px;
+  min-width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted-soft);
+}
+.notification-item.unread .notification-dot {
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+.page {
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  padding: 34px clamp(18px, 3vw, 42px) 60px;
+}
+.mobile-only {
+  display: none;
+}

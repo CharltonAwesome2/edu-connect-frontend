@@ -1,0 +1,301 @@
+/* src/styles/tokens.css */
+
+:root {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  color-scheme: light;
+
+  color: #0d1b2a;
+  background: #ffffff;
+
+  /*  Base surfaces  */
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #f4f6f9;
+  --panel-gradient: linear-gradient(145deg, #ffffff, #f4f6f9);
+  --line: #e2e8f0;
+  --line-soft: #eef2f7;
+
+  /*  Text  */
+  --text: #0d1b2a;
+  --muted: #5a6b7d;
+  --muted-strong: #3d4e60;
+  --muted-soft: #8796a8;
+
+  /*  Accents  */
+  --cyan: #0da5b7;
+  --cyan-dark: #08828f;
+  --violet: #6b5bd6;
+  --green: #1f9d63;
+  --amber: #b7791f;
+  --red: #d63a4f;
+
+  /*  Accent tints  */
+  --cyan-tint-4: rgba(13, 165, 183, 0.07);
+  --cyan-tint-8: rgba(13, 165, 183, 0.1);
+  --cyan-tint-15: rgba(13, 165, 183, 0.15);
+  --cyan-tint-25: rgba(13, 165, 183, 0.25);
+  --cyan-tint-50: rgba(13, 165, 183, 0.45);
+
+  --green-tint: rgba(31, 157, 99, 0.1);
+  --red-tint: rgba(214, 58, 79, 0.1);
+  --amber-tint: rgba(183, 121, 31, 0.1);
+  --violet-tint: rgba(107, 91, 214, 0.1);
+
+  /*  Neutral tints  */
+  --tint-1: rgba(0, 0, 0, 0.015);
+  --tint-2: rgba(0, 0, 0, 0.025);
+  --tint-4: rgba(0, 0, 0, 0.04);
+  --tint-6: rgba(0, 0, 0, 0.06);
+
+  /*  Shadows  */
+  --shadow: 0 22px 60px rgba(15, 23, 42, 0.08);
+  --card-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
+  --card-shadow-hover: 0 18px 45px rgba(15, 23, 42, 0.1);
+
+  /*  Decorative  */
+  --glow-1: rgba(24, 160, 186, 0.06);
+  --glow-2: rgba(109, 83, 209, 0.05);
+  --card-highlight: rgba(0, 0, 0, 0.02);
+
+  /*  Page backdrops  */
+  --marketing-bg: #f7f9fc;
+  --directory-bg: #f7f9fc;
+  --modal-bg: #ffffff;
+  --notification-panel-bg: #ffffff;
+  --auth-bg: #ffffff;
+  --auth-side-bg:
+    radial-gradient(circle at 30% 30%, rgba(13, 165, 183, 0.08), transparent 28%),
+    radial-gradient(circle at 70% 80%, rgba(107, 91, 214, 0.08), transparent 35%),
+    linear-gradient(145deg, #eef4f8, #e6edf4);
+  --sidebar-bg: #ffffff;
+  --topbar-bg: rgba(255, 255, 255, 0.86);
+  --filter-bar-bg: #ffffff;
+  --floating-note-bg: #ffffff;
+  --preview-card-bg: #ffffff;
+  --steps-card-bg: #ffffff;
+  --next-session-gradient: linear-gradient(145deg, rgba(13, 165, 183, 0.08), #f4f6f9);
+  --feature-band-gradient: linear-gradient(135deg, rgba(13, 165, 183, 0.06), rgba(107, 91, 214, 0.05));
+
+  /*  Marketing glows  */
+  --marketing-glow-1: rgba(35, 188, 205, 0.07);
+  --marketing-glow-2: rgba(116, 82, 224, 0.05);
+  --directory-glow: rgba(31, 151, 174, 0.06);
+  --preview-card-glow: rgba(31, 177, 196, 0.05);
+  --preview-focus-gradient: linear-gradient(135deg, rgba(13, 165, 183, 0.06), rgba(107, 91, 214, 0.04));
+  --hero-heading-gradient: linear-gradient(100deg, #0da5b7, #6b5bd6);
+
+  /*  Brand / avatars  */
+  --brand-mark-gradient: linear-gradient(135deg, #0da5b7, #08828f);
+  --brand-mark-fg: #ffffff;
+  --avatar-gradient: linear-gradient(135deg, #0da5b7, #6b5bd6);
+  --avatar-mini-gradient: linear-gradient(135deg, #8f79e9, #4e83d5);
+  --tutor-avatar-gradient: linear-gradient(135deg, #0da5b7, #6b5bd6);
+  --tutor-avatar-fg: #ffffff;
+
+  /*  Buttons  */
+  --button-primary-bg: linear-gradient(135deg, #0da5b7, #08828f);
+  --button-primary-fg: #ffffff;
+  --button-primary-shadow: 0 10px 25px rgba(13, 165, 183, 0.16);
+  --button-primary-shadow-hover: 0 12px 30px rgba(13, 165, 183, 0.24);
+  --icon-button-fg: #5a6b7d;
+  --role-picker-selected-border: rgba(13, 165, 183, 0.5);
+
+  /*  Cyan "light text" variants  */
+  --cyan-light: #08828f;
+  --cyan-hover: #08828f;
+
+  /*  Preview / notification misc  */
+  --preview-logo-fg: #ffffff;
+  --preview-progress-track: #e2e8f0;
+  --notification-badge-fg: #ffffff;
+  --notification-badge-border: #ffffff;
+  --notification-dot-off: #c4cdd6;
+
+  /*  Status chips  */
+  --status-success-fg: #1f9d63;
+  --status-success-bg: rgba(31, 157, 99, 0.08);
+  --status-success-border: rgba(31, 157, 99, 0.2);
+
+  --status-warning-fg: #b7791f;
+  --status-warning-bg: rgba(183, 121, 31, 0.08);
+  --status-warning-border: rgba(183, 121, 31, 0.2);
+
+  --status-danger-fg: #d63a4f;
+  --status-danger-bg: rgba(214, 58, 79, 0.08);
+  --status-danger-border: rgba(214, 58, 79, 0.2);
+
+  --status-info-fg: #08828f;
+  --status-info-bg: rgba(13, 165, 183, 0.08);
+  --status-info-border: rgba(13, 165, 183, 0.2);
+
+  --status-neutral-fg: #5a6b7d;
+  --status-neutral-bg: rgba(90, 107, 125, 0.08);
+  --status-neutral-border: rgba(90, 107, 125, 0.15);
+
+  /*  Notices  */
+  --notice-error-fg: #b91c2e;
+  --notice-error-bg: rgba(214, 58, 79, 0.08);
+  --notice-error-border: rgba(214, 58, 79, 0.25);
+
+  --notice-success-fg: #166534;
+  --notice-success-bg: rgba(31, 157, 99, 0.08);
+  --notice-success-border: rgba(31, 157, 99, 0.25);
+
+  --notice-info-fg: #08828f;
+  --notice-info-bg: rgba(13, 165, 183, 0.06);
+  --notice-info-border: rgba(13, 165, 183, 0.2);
+
+  /*  Inputs / overlays  */
+  --input-bg: #ffffff;
+  --input-placeholder: #8796a8;
+  --input-focus-border: rgba(13, 165, 183, 0.6);
+  --input-focus-ring: rgba(13, 165, 183, 0.12);
+  --modal-backdrop: rgba(15, 23, 42, 0.35);
+  --sidebar-scrim: rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  color: #eaf3ff;
+  background: #050a12;
+
+  --bg: #050a12;
+  --panel: #0a1422;
+  --panel-2: #0d1929;
+  --panel-gradient: linear-gradient(145deg, #0a1422, #0d1929);
+  --line: rgba(147, 177, 208, 0.15);
+  --line-soft: rgba(147, 177, 208, 0.08);
+
+  --text: #eef6ff;
+  --muted: #8fa2b7;
+  --muted-strong: #c7d6e8;
+  --muted-soft: #7f94a9;
+
+  --cyan: #34d7e6;
+  --cyan-dark: #0da5b7;
+  --violet: #9f88ff;
+  --green: #52d69a;
+  --amber: #f3bd63;
+  --red: #ff7184;
+
+  --cyan-tint-4: rgba(52, 215, 230, 0.07);
+  --cyan-tint-8: rgba(52, 215, 230, 0.09);
+  --cyan-tint-15: rgba(52, 215, 230, 0.14);
+  --cyan-tint-25: rgba(52, 215, 230, 0.24);
+  --cyan-tint-50: rgba(52, 215, 230, 0.5);
+
+  --green-tint: rgba(82, 214, 154, 0.1);
+  --red-tint: rgba(255, 113, 132, 0.1);
+  --amber-tint: rgba(243, 189, 99, 0.1);
+  --violet-tint: rgba(159, 136, 255, 0.1);
+
+  --tint-1: rgba(255, 255, 255, 0.012);
+  --tint-2: rgba(255, 255, 255, 0.018);
+  --tint-4: rgba(255, 255, 255, 0.04);
+  --tint-6: rgba(255, 255, 255, 0.06);
+
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+  --card-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+  --card-shadow-hover: 0 18px 45px rgba(0, 0, 0, 0.24);
+
+  --glow-1: rgba(24, 160, 186, 0.07);
+  --glow-2: rgba(109, 83, 209, 0.06);
+  --card-highlight: rgba(255, 255, 255, 0.018);
+
+  --marketing-bg: #050a12;
+  --directory-bg: #050a12;
+  --modal-bg: #0a1523;
+  --notification-panel-bg: #091523;
+  --auth-bg: #050a12;
+  --auth-side-bg:
+    radial-gradient(circle at 30% 30%, rgba(52, 215, 230, 0.15), transparent 28%),
+    radial-gradient(circle at 70% 80%, rgba(120, 90, 230, 0.16), transparent 35%),
+    linear-gradient(145deg, #081521, #07101b);
+  --sidebar-bg: rgba(6, 14, 24, 0.96);
+  --topbar-bg: rgba(5, 11, 19, 0.86);
+  --filter-bar-bg: rgba(10, 21, 35, 0.9);
+  --floating-note-bg: rgba(12, 25, 41, 0.93);
+  --preview-card-bg: rgba(11, 24, 39, 0.9);
+  --steps-card-bg: rgba(11, 22, 36, 0.78);
+  --next-session-gradient: linear-gradient(145deg, rgba(20, 84, 102, 0.22), rgba(16, 24, 44, 0.94));
+  --feature-band-gradient: linear-gradient(135deg, rgba(23, 128, 151, 0.14), rgba(91, 65, 184, 0.1));
+
+  --marketing-glow-1: rgba(35, 188, 205, 0.12);
+  --marketing-glow-2: rgba(116, 82, 224, 0.09);
+  --directory-glow: rgba(31, 151, 174, 0.1);
+  --preview-card-glow: rgba(31, 177, 196, 0.07);
+  --preview-focus-gradient: linear-gradient(135deg, rgba(52, 215, 230, 0.1), rgba(159, 136, 255, 0.06));
+  --hero-heading-gradient: linear-gradient(100deg, #68ede8, #8da4ff);
+
+  --brand-mark-gradient: linear-gradient(135deg, #75f4ee, var(--cyan-dark));
+  --brand-mark-fg: #021014;
+  --avatar-gradient: linear-gradient(135deg, var(--cyan), #778fff);
+  --avatar-mini-gradient: linear-gradient(135deg, #8f79e9, #4e83d5);
+  --tutor-avatar-gradient: linear-gradient(135deg, #65e9e4, #8887ec);
+  --tutor-avatar-fg: #061019;
+
+  --button-primary-bg: linear-gradient(135deg, #69f0ea, #28bdcf);
+  --button-primary-fg: #031316;
+  --button-primary-shadow: 0 10px 25px rgba(26, 179, 198, 0.16);
+  --button-primary-shadow-hover: 0 12px 30px rgba(26, 179, 198, 0.28);
+  --icon-button-fg: #a9bbce;
+  --role-picker-selected-border: rgba(52, 215, 230, 0.5);
+
+  --cyan-light: #9eeef3;
+  --cyan-hover: #73ebf4;
+
+  --preview-logo-fg: #061014;
+  --preview-progress-track: #172536;
+  --notification-badge-fg: #061016;
+  --notification-badge-border: #050b13;
+  --notification-dot-off: #445a70;
+
+  --status-success-fg: #85eeb6;
+  --status-success-bg: rgba(82, 214, 154, 0.08);
+  --status-success-border: rgba(82, 214, 154, 0.2);
+
+  --status-warning-fg: #f2cb87;
+  --status-warning-bg: rgba(243, 189, 99, 0.08);
+  --status-warning-border: rgba(243, 189, 99, 0.2);
+
+  --status-danger-fg: #ff9aab;
+  --status-danger-bg: rgba(255, 113, 132, 0.08);
+  --status-danger-border: rgba(255, 113, 132, 0.2);
+
+  --status-info-fg: #9cecf4;
+  --status-info-bg: rgba(52, 215, 230, 0.08);
+  --status-info-border: rgba(52, 215, 230, 0.2);
+
+  --status-neutral-fg: #9fb3c7;
+  --status-neutral-bg: rgba(145, 170, 195, 0.08);
+  --status-neutral-border: rgba(145, 170, 195, 0.12);
+
+  --notice-error-fg: #ffc1c9;
+  --notice-error-bg: rgba(255, 75, 99, 0.09);
+  --notice-error-border: rgba(255, 113, 132, 0.25);
+
+  --notice-success-fg: #a3f5c7;
+  --notice-success-bg: rgba(50, 202, 130, 0.09);
+  --notice-success-border: rgba(82, 214, 154, 0.25);
+
+  --notice-info-fg: #aeeef4;
+  --notice-info-bg: rgba(52, 215, 230, 0.07);
+  --notice-info-border: rgba(52, 215, 230, 0.2);
+
+  --input-bg: #07111e;
+  --input-placeholder: #5f738a;
+  --input-focus-border: rgba(52, 215, 230, 0.65);
+  --input-focus-ring: rgba(52, 215, 230, 0.08);
+  --modal-backdrop: rgba(0, 5, 10, 0.76);
+  --sidebar-scrim: rgba(0, 0, 0, 0.55);
+}

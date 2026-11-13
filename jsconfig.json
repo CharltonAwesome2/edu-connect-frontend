@@ -4,6 +4,7 @@
     "paths": {
       "@auth/*": ["./src/pages/auth/*"],
       "@pages/*": ["./src/pages/*"],
+      "@styles/*": ["./src/styles/*"],
       "@components/*": ["./src/components/*"],
       "@api/*": ["./src/api/*"],
       "@hooks/*": ["./src/hooks/*"],

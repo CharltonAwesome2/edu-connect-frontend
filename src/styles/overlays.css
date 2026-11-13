@@ -1,0 +1,86 @@
+.tabs {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 18px;
+}
+.tabs button {
+  color: var(--muted-soft);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: 9px 13px;
+  text-transform: capitalize;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.tabs button.active {
+  color: var(--cyan-light);
+  background: var(--cyan-tint-4);
+  border-color: var(--cyan-tint-15);
+}
+.attention-list {
+  display: grid;
+}
+.attention-list button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-align: left;
+  padding: 12px 0;
+  color: var(--muted-strong);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.attention-list button:last-child {
+  border-bottom: 0;
+}
+.attention-list button > span:last-child {
+  display: grid;
+}
+.attention-list b {
+  font-size: 12px;
+}
+.attention-list small {
+  color: var(--muted);
+  font-size: 9px;
+  margin-top: 3px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: 	var(--modal-backdrop);
+  backdrop-filter: blur(8px);
+}
+.modal {
+  width: min(100%, 520px);
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+  padding: 22px;
+  background: var(--modal-bg);
+  border: 1px solid var(--line-soft);
+  border-radius: 17px;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5);
+}
+.modal-wide {
+  width: min(100%, 880px);
+}
+.modal > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.modal > header h2 {
+  margin: 0;
+  font-size: 19px;
+}
